@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIGC文章质量报告</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.8;color:#1a1a1a;background:#f0f2f5}
+.container{max-width:1000px;margin:0 auto;padding:32px 20px 60px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#0f3460 0%,#16213e 50%,#1a1a2e 100%);color:#fff;padding:48px 40px;border-radius:16px;margin-bottom:28px;text-align:center}
+.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+.hero .sub{font-size:0.95rem;opacity:0.85;margin-bottom:16px}
+.hero .meta-row{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:20px}
+.hero .meta-item{text-align:center}
+.hero .meta-item .label{font-size:0.75rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px}
+.hero .meta-item .value{font-size:1.1rem;font-weight:600}
+
+/* Article cards */
+.article-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:768px){.article-cards{grid-template-columns:1fr}}
+.article-card{border-radius:12px;padding:24px;position:relative;overflow:hidden}
+.article-card.a1{background:linear-gradient(135deg,#e8f0fe 0%,#d2e3fc 100%);border:1px solid #a8c7fa}
+.article-card.a2{background:linear-gradient(135deg,#fff3e0 0%,#ffe0b2 100%);border:1px solid #ffcc80}
+.article-card .badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:12px}
+.article-card.a1 .badge{background:#0f3460;color:#fff}
+.article-card.a2 .badge{background:#e65100;color:#fff}
+.article-card .title{font-size:1.05rem;font-weight:700;margin-bottom:6px;line-height:1.5}
+.article-card .source{font-size:0.8rem;color:#666}
+.article-card .link{font-size:0.8rem;color:#1a73e8;word-break:break-all}
+
+/* Section */
+.section{background:#fff;border-radius:14px;padding:32px;margin-bottom:20px;box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+.section h2{font-size:1.25rem;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;gap:10px}
+.section h2 .num{background:#0f3460;color:#fff;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0}
+.section h3{font-size:1.05rem;font-weight:700;margin:20px 0 12px;color:#333}
+.section h4{font-size:0.95rem;font-weight:700;margin:16px 0 8px;color:#555}
+.note{padding:12px 16px;border-left:4px solid #e0e0e0;background:#f9f9f9;border-radius:0 8px 8px 0;margin:16px 0;color:#666;font-size:0.9rem}
+.note.warn{border-left-color:#ff9800;background:#fff8e1}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:0.9rem;margin:12px 0}
+th{background:#f5f6f8;font-weight:600;text-align:left;padding:10px 14px;border-bottom:2px solid #e0e0e0;font-size:0.82rem;color:#555;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+tr.total td{background:#f0f4ff;font-weight:700;border-top:2px solid #0f3460}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;white-space:nowrap}
+.tag-win{background:#e8f5e9;color:#2e7d32}
+.tag-lose{background:#fff3e0;color:#e65100}
+.tag-draw{background:#e3f2fd;color:#1565c0}
+.tag-best{background:#e8f5e9;color:#2e7d32;font-size:0.85rem;padding:3px 14px}
+.highlight{background:#fff9c4;padding:1px 5px;border-radius:3px;font-weight:600}
+
+/* Star rating */
+.stars{color:#f9a825;font-size:1rem}
+.star-row{display:flex;align-items:center;gap:4px;margin:2px 0}
+
+/* Radar */
+.radar-wrap{text-align:center;margin:24px auto;max-width:480px}
+.radar-wrap canvas{max-width:100%;height:auto!important}
+
+/* Score grid */
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+@media(max-width:768px){.score-grid{grid-template-columns:repeat(2,1fr)}}
+.score-item{background:#f5f6f8;border-radius:10px;padding:16px;text-align:center}
+.score-item .dim{font-size:0.78rem;color:#888;margin-bottom:4px}
+.score-item .winner{font-size:0.95rem;font-weight:700}
+.score-item .winner.w1{color:#0f3460}
+.score-item .winner.w2{color:#e65100}
+
+/* Conclusion */
+.conclusion{background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%);border:1px solid #a5d6a7;border-radius:14px;padding:28px;margin-top:24px}
+.conclusion h3{font-size:1.1rem;font-weight:700;margin-bottom:12px;color:#2e7d32}
+.conclusion p{margin:6px 0;color:#333;font-size:0.95rem}
+.conclusion .final-score{font-size:1.5rem;font-weight:800;color:#2e7d32;text-align:center;margin:16px 0}
+
+/* Suggest list */
+.suggest-list{counter-reset:item;list-style:none;padding:0}
+.suggest-list li{counter-increment:item;padding:12px 16px;margin:8px 0;background:#f5f6f8;border-radius:10px;font-size:0.92rem;display:flex;align-items:flex-start;gap:12px}
+.suggest-list li::before{content:counter(item);background:#0f3460;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}
+.suggest-list li strong{color:#0f3460}
+
+/* Footer */
+.footer{text-align:center;color:#999;font-size:0.82rem;margin-top:32px;padding-top:20px;border-top:1px solid #e0e0e0}
+
+/* === Mobile Responsive Fixes === */
+html{overflow-x:hidden}
+body{overflow-x:hidden;min-width:0}
+*{min-width:0}
+@media(max-width:768px){
+  .hero{padding:28px 16px!important;border-radius:12px;margin-bottom:20px}
+  .hero h1{font-size:1.4rem!important}
+  .hero .sub{font-size:0.82rem!important}
+  .hero .meta-row{gap:16px;margin-top:14px}
+  .hero .meta-item .value{font-size:0.95rem}
+  .container{padding:16px 12px 40px}
+  .section{padding:20px 16px;border-radius:10px;margin-bottom:16px}
+  .section h2{font-size:1.05rem;margin-bottom:16px;padding-bottom:8px}
+  .section h3{font-size:0.95rem;margin:16px 0 10px}
+  .section h4{font-size:0.88rem;margin:12px 0 6px}
+  .note{font-size:0.82rem;padding:10px 12px;margin:12px 0}
+  .conclusion{padding:20px 16px;border-radius:10px}
+  .conclusion h3{font-size:1rem}
+  .conclusion p{font-size:0.88rem}
+  .conclusion .final-score{font-size:1.15rem}
+  .suggest-list li{font-size:0.85rem;padding:10px 12px}
+  .suggest-list li::before{width:22px;height:22px;font-size:0.72rem}
+  .article-card{padding:16px}
+  .article-card .title{font-size:0.92rem}
+  .score-grid{gap:10px}
+  .score-item{padding:12px 8px}
+  .score-item .dim{font-size:0.72rem}
+  .score-item .winner{font-size:0.85rem}
+  th{white-space:normal!important;word-break:break-word}
+  td{word-break:break-word}
+  .article-cards{grid-template-columns:1fr!important}
+}
+
+/* Table wrapper - prevent horizontal overflow */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:0.9rem;margin:12px 0}
+@media(max-width:600px){
+  .table-wrap table{display:block;min-width:400px}
+  table{font-size:0.82rem}
+  th{padding:8px 10px;font-size:0.76rem}
+  td{padding:8px 10px}
+  .tag{font-size:0.72rem;padding:1px 6px}
+  .tag-best{font-size:0.78rem;padding:2px 10px}
+  .highlight{font-size:inherit}
+}
+
+/* Radar chart - fix for mobile */
+.radar-wrap{text-align:center;margin:24px auto;max-width:480px}
+@media(max-width:768px){
+  .radar-wrap{max-width:360px}
+  .score-grid{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:480px){
+  .radar-wrap{max-width:300px;margin:16px auto;padding:0}
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ====== HERO ====== -->
+<div class="hero">
+  <h1>AIGC文章质量报告</h1>
+  <div class="sub">评测方式：真实发布反馈（40%）+ AI多维度内容分析（60%）</div>
+  <div class="meta-row">
+    <div class="meta-item"><div class="label">报告日期</div><div class="value">2026-06-17</div></div>
+    <div class="meta-item"><div class="label">文章1评分</div><div class="value" style="color:#90caf9">8.4 分</div></div>
+    <div class="meta-item"><div class="label">文章2评分</div><div class="value" style="color:#ffab40">5.4 分</div></div>
+    <div class="meta-item"><div class="label">对比维度</div><div class="value">8 项</div></div>
+  </div>
+</div>
+
+<!-- ====== 文章信息卡 ====== -->
+<div class="article-cards">
+  <div class="article-card a1">
+    <div class="badge">文章1 · AIGC</div>
+    <div class="title">8.19万，新哈弗H6经典版增配8155芯片+电动尾门，到底值不值？</div>
+    <div class="source">发布平台：懂车帝（垂类头部）<br>作者：WorkBuddy专家团 · 2026-06-17</div>
+    <a class="link" href="https://www.dongchedi.com/article/7652191059901022744" target="_blank" rel="noopener noreferrer">查看原文 →</a>
+  </div>
+  <div class="article-card a2">
+    <div class="badge">文章2 · 垂类媒体</div>
+    <div class="title">售9.99万元/限时优惠换新价8.19万元 2026款哈弗H6经典版正式上市</div>
+    <div class="source">发布平台：懂车帝（垂类头部）<br>作者：车大炮咩 · 2026-06-15</div>
+    <a class="link" href="https://www.dongchedi.com/article/7651492461361480217" target="_blank" rel="noopener noreferrer">查看原文 →</a>
+  </div>
+</div>
+
+<!-- ====== 一、AI多维度内容分析 ====== -->
+<div class="section">
+  <h2><span class="num">1</span> AI多维度内容对比分析</h2>
+
+  <!-- 1.1 雷达图 -->
+  <div class="note" style="margin-bottom:16px;background:#e8f0fe;border-left-color:#0f3460;color:#1a3a5c;font-weight:500">文章1由 <strong>WorkBuddy</strong> 专家团调用 <strong>GLM-5.1</strong> 模型生成；本报告由 <strong>CodeBuddy</strong> 搭载 <strong>DeepSeek-V4-Pro</strong> 独立完成评测。两者使用不同平台、不同模型、独立会话，确保评测的客观性。</div>
+  <h3>1.1 综合雷达图</h3>
+  <div class="radar-wrap" style="text-align:center">
+    <img src="https://statics-1253233020.cos.ap-guangzhou.myqcloud.com/aicall/timeday/aigc-qc-radar.png" alt="雷达图对比" style="width:100%;max-width:480px;height:auto;display:block;margin:0 auto"/>
+    <p style="color:#888;font-size:0.82rem;margin-top:8px">评分标准：1-10分，分数越高表现越好</p>
+  </div>
+
+  <!-- 1.2 各维度 -->
+  <h3>1.2 各维度详细对比</h3>
+
+  <!-- 维度一 -->
+  <h4>维度一：标题吸引力</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:80px"></th><th>文章1</th><th>文章2</th></tr>
+    <tr>
+      <td><strong>标题</strong></td>
+      <td>8.19万，新哈弗H6经典版增配8155芯片+电动尾门，到底值不值？</td>
+      <td>售9.99万元/限时优惠换新价8.19万元 2026款哈弗H6经典版正式上市</td>
+    </tr>
+    <tr>
+      <td><strong>策略</strong></td>
+      <td>价格锚点（8.19万）+ 核心卖点罗列 + 价值疑问句</td>
+      <td>新闻通稿式标题，包含双价格但缺少传播钩子</td>
+    </tr>
+    <tr>
+      <td><strong>评分</strong></td>
+      <td><span class="tag tag-best">9分</span></td>
+      <td><span class="tag tag-lose">6分</span></td>
+    </tr>
+  </table></div>
+  <div class="note">分析：文章1用"8.19万"制造价格锚点，"到底值不值"引发读者好奇——典型的自媒体爆款标题公式。文章2标题虽含双价格信息，但仍是新闻通稿式陈述，缺少悬念和情绪钩子，传播力不足。</div>
+
+  <!-- 维度二 -->
+  <h4>维度二：结构完整性</h4>
+  <div class="table-wrap"><table>
+    <tr><th>章节</th><th>文章1</th><th>文章2</th></tr>
+    <tr><td>开篇</td><td><span class="tag tag-win">✓</span> 从H6销量断崖切入，制造冲突</td><td><span class="tag tag-win">✓</span> 产品定位+多代同堂背景</td></tr>
+    <tr><td>外观</td><td><span class="tag tag-win">✓</span> 简洁到位，点出"远山灰"新车色</td><td><span class="tag tag-win">✓</span> 提及尺寸+新车色</td></tr>
+    <tr><td>内饰</td><td><span class="tag tag-win">✓</span> 聚焦8155芯片，强调"8万级首次"</td><td><span class="tag tag-win">✓</span> 提及14.6寸屏+咖啡智能座舱</td></tr>
+    <tr><td>空间</td><td><span class="tag tag-win">✓</span> 560L→1485L，27处储物，后排纯平</td><td><span class="tag tag-lose">✗</span> 未提及空间数据</td></tr>
+    <tr><td>配置</td><td><span class="tag tag-win">✓</span> <strong>提炼"四大舒适配置"概念</strong></td><td><span class="tag tag-win">✓</span> 罗列式，无归纳</td></tr>
+    <tr><td>动力</td><td><span class="tag tag-win">✓</span> 简洁有力</td><td><span class="tag tag-win">✓</span> 类似，补充悬挂结构</td></tr>
+    <tr><td>安全</td><td><span class="tag tag-win">✓</span> <strong>72%高强钢/2000Mpa热成型钢/6气囊/L2智驾</strong></td><td><span class="tag tag-lose">⚠</span> 仅提L2智驾+360全景，无结构安全数据</td></tr>
+    <tr><td>竞品对比</td><td><span class="tag tag-win">✓</span> <strong>CS75 PLUS + 博越L 价格对比</strong></td><td><span class="tag tag-lose">✗</span> 无</td></tr>
+    <tr><td>购车建议</td><td><span class="tag tag-win">✓</span> 目标人群画像 + 五重权益</td><td><span class="tag tag-lose">✗</span> 无购车建议，仅简短结语</td></tr>
+    <tr><td>结尾</td><td><span class="tag tag-win">✓</span> <strong>引导互动"评论区聊一聊"</strong></td><td><span class="tag tag-draw">⚠</span> 客观评价"吸引力大不如前"，但无互动引导</td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td><span class="tag tag-best">9分</span></td><td><span class="tag tag-lose">6分</span></td></tr>
+  </table></div>
+
+  <!-- 维度三 -->
+  <h4>维度三：数据全面性</h4>
+  <div class="table-wrap"><table>
+    <tr><th>数据项</th><th style="text-align:center">文章1</th><th style="text-align:center">文章2</th></tr>
+    <tr><td>价格（指导价/限时价）</td><td style="text-align:center"><span class="tag tag-draw">✓ 9.99万/8.19万</span></td><td style="text-align:center"><span class="tag tag-draw">✓ 9.99万/8.19万</span></td></tr>
+    <tr><td>尺寸（长宽高/轴距）</td><td style="text-align:center"><span class="tag tag-draw">✓</span></td><td style="text-align:center"><span class="tag tag-draw">✓</span></td></tr>
+    <tr><td>后备厢容积</td><td style="text-align:center"><span class="highlight">560L→1485L</span></td><td style="text-align:center"><span class="tag tag-lose">未提及</span></td></tr>
+    <tr><td>中控屏/芯片/内存</td><td style="text-align:center"><span class="highlight">14.6"+8155+12G+64G</span> <span class="tag tag-win">更详细</span></td><td style="text-align:center">14.6"+咖啡智能座舱</td></tr>
+    <tr><td>动力参数</td><td style="text-align:center"><span class="tag tag-draw">✓ 135kW/275N·m/7.13L</span></td><td style="text-align:center"><span class="tag tag-draw">✓ 135kW/275N·m</span></td></tr>
+    <tr><td>悬挂结构</td><td style="text-align:center"><span class="tag tag-lose">未提及</span></td><td style="text-align:center"><span class="highlight">麦弗逊+多连杆</span> <span class="tag tag-win">★</span></td></tr>
+    <tr><td>安全结构</td><td style="text-align:center"><span class="highlight">72%高强钢/2000Mpa/6气囊</span> <span class="tag tag-win">★</span></td><td style="text-align:center"><span class="tag tag-lose">未提及</span></td></tr>
+    <tr><td>竞品价格</td><td style="text-align:center"><span class="highlight">CS75 PLUS 10.89万/博越L 11.79万</span> <span class="tag tag-win">★★</span></td><td style="text-align:center"><span class="tag tag-lose">无</span></td></tr>
+    <tr><td>销量数据</td><td style="text-align:center"><span class="highlight">H6月销5万→2684/哈弗5月55478</span> <span class="tag tag-win">★</span></td><td style="text-align:center"><span class="tag tag-lose">无</span></td></tr>
+    <tr><td>购车权益</td><td style="text-align:center"><span class="highlight">五重权益</span> <span class="tag tag-win">更全</span></td><td style="text-align:center"><span class="tag tag-lose">未提及</span></td></tr>
+    <tr><td>储物空间</td><td style="text-align:center"><span class="highlight">27处储物空间</span> <span class="tag tag-win">★</span></td><td style="text-align:center"><span class="tag tag-lose">未提及</span></td></tr>
+    <tr><td>产品定位</td><td style="text-align:center"><span class="tag tag-lose">未提三代/多代同堂</span></td><td style="text-align:center"><span class="highlight">第三代/多代同堂</span> <span class="tag tag-win">★</span></td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td style="text-align:center"><span class="tag tag-best">9分</span></td><td style="text-align:center"><span class="tag tag-lose">5分</span></td></tr>
+  </table></div>
+
+  <!-- 维度四 -->
+  <h4>维度四：可读性与传播力</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:120px">维度</th><th>文章1</th><th>文章2</th></tr>
+    <tr><td>语言风格</td><td><span class="tag tag-win">✓</span> 口语化、有网感</td><td><span class="tag tag-lose">⚠</span> 新闻通稿风格，偏正式</td></tr>
+    <tr><td>典型金句</td><td>"真没见过""诚意没话说""这把断崖让人唏嘘"</td><td>"增配降价""吸引力大不如前"</td></tr>
+    <tr><td>信息密度</td><td><span class="tag tag-win">✓</span> 高，段落精炼</td><td><span class="tag tag-lose">⚠</span> 中等，部分冗长</td></tr>
+    <tr><td>概念提炼</td><td><span class="tag tag-win">✓</span> "四大舒适配置""双子星矩阵"</td><td><span class="tag tag-lose">✗</span> "增配降价"但无更多提炼</td></tr>
+    <tr><td>读者互动</td><td><span class="tag tag-win">✓</span> 结尾引导评论</td><td><span class="tag tag-lose">✗</span> 无</td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td><span class="tag tag-best">9分</span></td><td><span class="tag tag-lose">5分</span></td></tr>
+  </table></div>
+
+  <!-- 维度五 -->
+  <h4>维度五：客观平衡性</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:120px">维度</th><th>文章1</th><th>文章2</th></tr>
+    <tr><td>正面倾向</td><td>较明显推荐</td><td>较中立</td></tr>
+    <tr><td>负面信息</td><td><span class="tag tag-lose">✗</span> 未提销量下滑的深层原因</td><td><span class="tag tag-win">✓</span> 指出"吸引力大不如前""短期难改观望"</td></tr>
+    <tr><td>竞品评价</td><td>客观（承认轴距偏短）</td><td>无竞品对比</td></tr>
+    <tr><td>总体基调</td><td>"值"的结论导向</td><td>"增配降价但难改颓势"</td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td><span class="tag tag-lose">6分</span></td><td><span class="tag tag-best">7分</span></td></tr>
+  </table></div>
+  <div class="note warn">改进建议：文章1可在动力或市场分析部分补充"销量下滑的深层原因"及"新能源冲击下的挑战"等客观信息，提升公信力。</div>
+
+  <!-- 维度六 -->
+  <h4>维度六：竞品分析</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:120px"></th><th style="text-align:center">文章1</th><th style="text-align:center">文章2</th></tr>
+    <tr><td>竞品对比</td><td style="text-align:center"><span class="tag tag-win">✓ CS75 PLUS + 博越L</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 无</span></td></tr>
+    <tr><td>价格对比</td><td style="text-align:center"><span class="tag tag-win">✓ 具体到指导价</span></td><td style="text-align:center"><span class="tag tag-lose">✗</span></td></tr>
+    <tr><td>差异化分析</td><td style="text-align:center"><span class="tag tag-win">✓ 芯片/空间/价格三维对比</span></td><td style="text-align:center"><span class="tag tag-lose">✗</span></td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td style="text-align:center"><span class="tag tag-best">9分</span></td><td style="text-align:center"><span class="tag tag-lose">3分</span></td></tr>
+  </table></div>
+  <div class="note">文章1的竞品对比是文章2完全没有的章节，这是两篇文章最大的差距之一。</div>
+
+  <!-- 维度七 -->
+  <h4>维度七：购买决策引导</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:140px">维度</th><th style="text-align:center">文章1</th><th style="text-align:center">文章2</th></tr>
+    <tr><td>目标用户画像</td><td style="text-align:center"><span class="tag tag-win">✓ "8-10万预算/三四线家庭/充电不便"</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 无</span></td></tr>
+    <tr><td>购车权益</td><td style="text-align:center"><span class="tag tag-win">✓ 五重权益（含贷款/流量）</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 未提及</span></td></tr>
+    <tr><td>品牌背书</td><td style="text-align:center"><span class="tag tag-win">✓ 400万保有量/月销55478</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 无</span></td></tr>
+    <tr><td>维修便利性</td><td style="text-align:center"><span class="tag tag-win">✓ 网点多/配件便宜/残值稳</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 无</span></td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td style="text-align:center"><span class="tag tag-best">9分</span></td><td style="text-align:center"><span class="tag tag-lose">3分</span></td></tr>
+  </table></div>
+
+  <!-- 维度八 -->
+  <h4>维度八：专业规范度</h4>
+  <div class="table-wrap"><table>
+    <tr><th style="width:120px">维度</th><th style="text-align:center">文章1</th><th style="text-align:center">文章2</th></tr>
+    <tr><td>用词规范</td><td style="text-align:center"><span class="tag tag-lose">⚠ 偏口语化，"小编""拉胯"</span></td><td style="text-align:center"><span class="tag tag-win">✓ 正式规范</span></td></tr>
+    <tr><td>数据来源</td><td style="text-align:center"><span class="tag tag-win">标注来源</span></td><td style="text-align:center"><span class="tag tag-lose">⚠ 未标注来源</span></td></tr>
+    <tr><td>图片标注</td><td style="text-align:center"><span class="tag tag-win">✓ 标注"AI生成示意图"/"网易汽车"</span></td><td style="text-align:center"><span class="tag tag-lose">✗ 未标注</span></td></tr>
+    <tr><td>段落结构</td><td style="text-align:center"><span class="tag tag-draw">✓ 清晰分段</span></td><td style="text-align:center"><span class="tag tag-draw">✓ 清晰分段</span></td></tr>
+    <tr><td>错别字/语病</td><td style="text-align:center"><span class="tag tag-draw">✓ 无明显错误</span></td><td style="text-align:center"><span class="tag tag-draw">✓ 无明显错误</span></td></tr>
+    <tr class="total"><td><strong>评分</strong></td><td style="text-align:center"><span class="tag tag-lose">7分</span></td><td style="text-align:center"><span class="tag tag-best">8分</span></td></tr>
+  </table></div>
+</div>
+
+<!-- ====== 二、真实发布反馈 ====== -->
+<div class="section">
+  <h2><span class="num">2</span> 真实发布反馈</h2>
+
+  <h3>2.1 文章1（懂车帝 · WorkBuddy专家团）</h3>
+  <div class="table-wrap"><table>
+    <tr><th style="width:140px">指标</th><th>数据</th></tr>
+    <tr><td><strong>发布平台</strong></td><td>懂车帝（国内头部汽车垂直平台）</td></tr>
+    <tr><td><strong>作者</strong></td><td>WorkBuddy专家团</td></tr>
+    <tr><td><strong>发布时间</strong></td><td>2026年6月17日</td></tr>
+    <tr><td><strong>阅读量</strong></td><td>较少（新发布）</td></tr>
+    <tr><td><strong>评论数</strong></td><td>0 条（发文后短时间内）</td></tr>
+  </table></div>
+  <div class="note warn">⚠️ 文章1刚发布不久，互动数据尚未积累，且账号为新号，文章流量曝光不足。懂车帝作为垂类头部平台，天然拥有精准的汽车兴趣用户流量池，后续数据值得持续跟踪。</div>
+
+  <h3>2.2 文章2（懂车帝 · 车大炮咩）</h3>
+  <div class="table-wrap"><table>
+    <tr><th style="width:140px">指标</th><th>数据</th></tr>
+    <tr><td><strong>发布平台</strong></td><td>懂车帝（国内头部汽车垂直平台）</td></tr>
+    <tr><td><strong>作者</strong></td><td>车大炮咩</td></tr>
+    <tr><td><strong>发布时间</strong></td><td>2026年6月15日</td></tr>
+    <tr><td><strong>阅读量</strong></td><td>较少</td></tr>
+    <tr><td><strong>评论数</strong></td><td>较少</td></tr>
+  </table></div>
+  <div class="note">注：两篇文章均发布在懂车帝同一平台，具备公平的流量基础对比条件。文章2发布约2天，互动数据同样偏少。</div>
+</div>
+
+<!-- ====== 三、综合评分总览 ====== -->
+<div class="section">
+  <h2><span class="num">3</span> 综合评分总览</h2>
+
+  <div class="table-wrap"><table>
+    <tr><th>维度</th><th style="text-align:center">文章1（WorkBuddy专家团）</th><th style="text-align:center">文章2（车大炮咩）</th><th style="text-align:center">优势方</th></tr>
+    <tr>
+      <td>标题吸引力</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">6</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>结构完整性</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">6</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>数据全面性</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">5</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>可读性与传播力</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">5</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>客观平衡性</td>
+      <td style="text-align:center">6</td>
+      <td style="text-align:center"><strong>7</strong></td>
+      <td style="text-align:center"><span class="tag tag-lose">文章2</span></td>
+    </tr>
+    <tr>
+      <td>竞品分析</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">3</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>购买决策引导</td>
+      <td style="text-align:center"><strong>9</strong></td>
+      <td style="text-align:center">3</td>
+      <td style="text-align:center"><span class="tag tag-win">文章1</span></td>
+    </tr>
+    <tr>
+      <td>专业规范度</td>
+      <td style="text-align:center">7</td>
+      <td style="text-align:center"><strong>8</strong></td>
+      <td style="text-align:center"><span class="tag tag-lose">文章2</span></td>
+    </tr>
+    <tr class="total">
+      <td><strong>综合均分</strong></td>
+      <td style="text-align:center;font-size:1.1rem;color:#0f3460"><strong>8.4</strong></td>
+      <td style="text-align:center;font-size:1.1rem;color:#e65100"><strong>5.4</strong></td>
+      <td style="text-align:center"><span class="tag tag-best">文章1</span></td>
+    </tr>
+  </table></div>
+
+  <!-- 评分卡片 -->
+  <div class="score-grid">
+    <div class="score-item">
+      <div class="dim">标题吸引力</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">结构完整性</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">数据全面性</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">可读性与传播力</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">客观平衡性</div>
+      <div class="winner w2">文章2 ★</div>
+    </div>
+    <div class="score-item">
+      <div class="dim">竞品分析</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">购买决策引导</div>
+      <div class="winner w1">文章1 <span class="stars">★★★</span></div>
+    </div>
+    <div class="score-item">
+      <div class="dim">专业规范度</div>
+      <div class="winner w2">文章2 ★</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 四、结论与改进建议 ====== -->
+<div class="section">
+  <h2><span class="num">4</span> 结论与改进建议</h2>
+
+  <h3>4.1 总体评价</h3>
+  <p><strong>文章1（WorkBuddy专家团）</strong> 在标题吸引力、结构完整性、数据全面性、可读性与传播力、竞品分析、购买决策引导 <strong>6个维度</strong> 上显著优于竞品，是一篇高质量的消费者导向汽车内容。两篇文章均发布在懂车帝垂类头部平台，具备公平的对比基础。</p>
+  <p style="margin-top:8px"><strong>文章2（车大炮咩）</strong> 在客观平衡性（指出"吸引力大不如前""短期难改观望"）和专业规范度上略优，补充了悬挂结构、产品定位等文章1缺失的信息，但其新闻通稿风格在传播力和决策辅助价值上明显不足。</p>
+
+  <div class="conclusion">
+    <h3>🏆 最终结论</h3>
+    <div class="final-score">文章1 综合评分 8.4 vs 文章2 综合评分 5.4</div>
+    <p><strong>文章1（WorkBuddy专家团）在 8 个维度中的 6 个维度上领先</strong>，整体质量显著优于竞品文章2。</p>
+    <p style="margin-top:4px">文章2（车大炮咩）仅在"客观平衡性"和"专业规范度"两个维度上略优。</p>
+    <div class="note warn" style="margin-top:16px">
+      <strong>⚠️ 内容质量 ≠ 传播效果：</strong>本次对比评测中，AIGC生成的文章1在内容质量上明显胜出，但两篇文章实际投放后的互动数据（阅读量、评论、点赞等）均未体现这一优势。主要原因包括：
+      <ul style="margin:8px 0 0 16px;font-size:0.88rem;line-height:1.7">
+        <li><strong>账号基础薄弱：</strong>文章1的发布账号为新号，粉丝积累和账号权重远不及文章2的成熟账号，初始曝光量受限</li>
+        <li><strong>发布时效不足：</strong>文章1发布时间极短（数小时内），内容分发和用户互动需要更长的发酵周期</li>
+        <li><strong>平台推荐机制：</strong>懂车帝的推荐算法依赖历史互动数据，新号冷启动阶段天然处于劣势</li>
+      </ul>
+      <p style="margin-top:8px;font-size:0.88rem">因此，本报告的<strong>"内容质量评分"反映的是文章本身的创作水平</strong>，而非其实际传播效果。随着账号运营持续和文章曝光积累，高质量内容的传播潜力更值得期待。建议定期追踪互动数据，以获得更完整的质量验证闭环。</p>
+    </div>
+  </div>
+
+  <h3>4.2 改进建议</h3>
+  <ol class="suggest-list">
+    <li><div><strong>提升客观性</strong><br>补充"新能源冲击下销量下滑的深层原因"及"消费者观望情绪"等客观分析，增加公信力</div></li>
+    <li><div><strong>丰富专业细节</strong><br>补充悬挂结构（麦弗逊+多连杆）、产品代际定位（第三代/多代同堂）等竞品已有的专业信息</div></li>
+    <li><div><strong>持续追踪互动</strong><br>发布48小时后回查评论/点赞/分享数据，评估真实传播效果。两文同平台，对比更有参考价值</div></li>
+  </ol>
+
+  <h3>4.3 后续观察指标</h3>
+  <ul style="margin:8px 0 0 20px;font-size:0.92rem">
+    <li>发布后 <strong>24h / 48h / 7天</strong> 的阅读量、评论数、点赞数</li>
+    <li>评论内容的情感倾向（正面/中性/负面比例）</li>
+    <li>是否被其他媒体/自媒体引用或转载</li>
+    <li>搜索引擎中相关关键词的排名变化</li>
+  </ul>
+</div>
+</div>
+
+
+
+</body>
+</html>
