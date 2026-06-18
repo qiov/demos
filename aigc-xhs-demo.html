@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20万落地纯电SUV｜亲测5款不踩雷，对号入座别选错 · 小红书</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#f5f5f5;color:#333;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ========== 整体容器（参考小红书官网：左侧填满，右侧滚动到底贴互动栏） ========== */
+.xhs-page{display:flex;justify-content:center;align-items:flex-start;padding:24px 16px;min-height:100vh}
+.xhs-card{display:flex;width:1040px;max-width:100%;height:calc(100vh - 48px);max-height:920px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.06);position:relative}
+
+/* ========== 左侧图片区（黑色背景 + contain 完整显示，参考小红书图片浏览） ========== */
+.xhs-gallery{position:relative;width:520px;flex-shrink:0;background:#000;display:flex;flex-direction:column;height:100%}
+
+/* 桌面端：opacity 切换（保留原视觉） */
+.xhs-slides{position:relative;flex:1;overflow:hidden;min-height:0;background:#000}
+.xhs-slide{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0;background:#000;opacity:0;visibility:hidden;transition:opacity .3s}
+.xhs-slide.xhs-slide-active{opacity:1;visibility:visible}
+.xhs-slide img{width:100%;height:100%;object-fit:contain;display:block;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;pointer-events:none}
+
+/* 移动端：CSS scroll-snap 原生横向滚动（最稳定，微信/iOS/Android 全兼容） */
+@media (max-width: 960px) {
+  .xhs-slides{
+    display:flex;
+    flex-direction:row;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    /* 关键：在被 fit-to-content 高度的 iframe 宿主里，flex:1 会塌缩成 0；
+       这里显式给出高度，以宿主视口宽度为基准（移动端 1:1 画廊） */
+    width:100%;
+    height:100vw;
+    max-height:100vh;
+    min-height:280px;
+  }
+  .xhs-slides::-webkit-scrollbar{display:none}
+  .xhs-slide{
+    position:relative;
+    top:auto;left:auto;right:auto;bottom:auto;
+    flex:0 0 100%;
+    width:100%;
+    height:100%;
+    opacity:1 !important;
+    visibility:visible !important;
+    scroll-snap-align:center;
+    scroll-snap-stop:always;
+  }
+}
+.xhs-img-caption{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,0));color:rgba(255,255,255,.95);padding:24px 20px 16px;font-size:12px;text-align:center;line-height:1.5;pointer-events:auto}
+.xhs-img-caption a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+
+/* 翻页箭头（移动端始终显示，更易点） */
+.xhs-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.4);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0;transition:opacity .2s;z-index:5;-webkit-tap-highlight-color:transparent}
+.xhs-gallery:hover .xhs-nav{opacity:1}
+.xhs-nav:hover{background:rgba(0,0,0,.6)}
+.xhs-nav-prev{left:16px}
+.xhs-nav-next{right:16px}
+@media (hover:none){
+  .xhs-nav{opacity:.7}
+  .xhs-nav:active{background:rgba(0,0,0,.7)}
+}
+
+/* 右上角 N/M 计数 */
+.xhs-counter{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);color:#fff;font-size:12px;padding:3px 10px;border-radius:12px;z-index:3}
+
+/* 圆点指示（漂浮在图片底部之上） */
+.xhs-dots{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:5px;z-index:3}
+.xhs-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}
+.xhs-dot.active{background:#ff2442;width:14px;border-radius:3px}
+
+/* ========== 右侧内容栏（高度对齐左侧，滚动到底贴互动栏） ========== */
+.xhs-content{flex:1;display:flex;flex-direction:column;min-width:0;height:100%}
+
+/* 作者栏 */
+.xhs-author{display:flex;align-items:center;padding:16px 24px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.xhs-author-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#feca57);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-right:12px;flex-shrink:0}
+.xhs-author-info{flex:1;min-width:0}
+.xhs-author-name{font-size:15px;font-weight:600;color:#333;margin-bottom:2px}
+.xhs-author-tag{font-size:12px;color:#999}
+.xhs-follow-btn{background:#ff2442;color:#fff;border:none;padding:8px 22px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;transition:background .2s}
+.xhs-follow-btn:hover{background:#e51e3a}
+
+/* 正文区（滚动） */
+.xhs-body-scroll{flex:1;overflow-y:auto;padding:16px 24px 20px;min-height:0}
+.xhs-body-scroll::-webkit-scrollbar{width:6px}
+.xhs-body-scroll::-webkit-scrollbar-thumb{background:#e0e0e0;border-radius:3px}
+.xhs-body-scroll::-webkit-scrollbar-thumb:hover{background:#bbb}
+
+.xhs-title{font-size:18px;font-weight:700;color:#222;line-height:1.4;margin-bottom:10px}
+.xhs-quote{font-size:14px;color:#333;line-height:1.85;margin-bottom:14px}
+
+.xhs-body p{font-size:14px;color:#333;line-height:1.85;margin:10px 0;word-break:break-word}
+.xhs-h2{font-size:16px;font-weight:700;color:#222;margin:20px 0 10px;padding:0;border:none}
+.xhs-list{list-style:none;padding:0;margin:8px 0}
+.xhs-list li{font-size:14px;color:#333;line-height:1.85;margin:6px 0;padding-left:0}
+.xhs-list li::before{content:""}
+.xhs-body strong{color:#222;font-weight:700}
+.xhs-body a{color:#3a6cf2;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+.xhs-body a:hover{border-bottom-color:#3a6cf2}
+
+.xhs-tags{margin:20px 0 8px;display:flex;flex-wrap:wrap;gap:6px}
+.xhs-tag{display:inline-block;color:#3a6cf2;font-size:13px;text-decoration:none;padding:2px 0}
+.xhs-tag:hover{text-decoration:underline}
+
+.xhs-time-loc{font-size:12px;color:#bbb;margin-top:12px;padding-bottom:14px;border-bottom:1px solid #f0f0f0}
+
+/* 评论区 */
+.xhs-comments-head{font-size:13px;color:#999;padding:14px 0 8px}
+.xhs-comment{padding:10px 0}
+.xhs-comment-row{display:flex;gap:10px}
+.xhs-avatar{width:36px;height:36px;border-radius:50%;background:#f0e6ff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.xhs-avatar-author{background:linear-gradient(135deg,#ff6b6b,#feca57)}
+.xhs-comment-body{flex:1;min-width:0}
+.xhs-comment-meta{font-size:13px;color:#888;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.xhs-comment-name{font-weight:500}
+.xhs-author-badge{background:#fff0e6;color:#ff7a45;font-size:11px;padding:1px 6px;border-radius:3px;font-weight:500}
+.xhs-comment-text{font-size:14px;color:#333;line-height:1.6}
+.xhs-comment-actions{display:flex;gap:14px;align-items:center;margin-top:6px;font-size:12px;color:#999}
+.xhs-comment-time{flex-shrink:0}
+.xhs-comment-action{cursor:pointer}
+.xhs-comment-action:hover{color:#ff2442}
+.xhs-comment-reply{margin-top:10px;background:#fafafa;border-radius:8px;padding:10px 12px}
+.xhs-comment-expand{font-size:13px;color:#3a6cf2;cursor:pointer;margin-top:6px}
+
+.xhs-end{text-align:center;color:#bbb;font-size:13px;letter-spacing:8px;padding:20px 0 8px;margin-top:8px}
+
+/* 底部互动栏：固定在右侧底部 */
+.xhs-bottom-bar{flex-shrink:0;background:#fff;border-top:1px solid #f0f0f0;padding:12px 24px;display:flex;align-items:center;gap:12px}
+.xhs-input-wrap{flex:1;background:#f5f5f5;border-radius:24px;padding:8px 16px;display:flex;align-items:center;gap:8px}
+.xhs-input-avatar{width:24px;height:24px;border-radius:50%;background:#ffd166;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.xhs-input-placeholder{color:#aaa;font-size:13px;flex:1}
+.xhs-action-group{display:flex;align-items:center;gap:16px;font-size:13px;color:#666}
+.xhs-action{display:flex;align-items:center;gap:4px;cursor:pointer}
+.xhs-action:hover{color:#ff2442}
+.xhs-action-ico{font-size:18px}
+
+/* 响应式 */
+@media (max-width: 960px) {
+  .xhs-page{padding:0;align-items:stretch}
+  .xhs-card{flex-direction:column;width:100%;height:auto;max-height:none;border-radius:0}
+  .xhs-gallery{width:100%;height:auto;aspect-ratio:1/1;min-height:280px;display:flex;flex-direction:column;flex-shrink:0}
+  .xhs-content{height:auto}
+  .xhs-body-scroll{overflow-y:visible}
+  .xhs-bottom-bar{position:sticky;bottom:0;z-index:5}
+  /* 移动端隐藏底部圆点指示器（保留右上角 N/M 计数和左右翻页箭头作为位置反馈） */
+  .xhs-dots{display:none !important}
+  /* 翻页箭头在移动端做得更显眼一点（替代指示器的位置反馈作用） */
+  .xhs-nav{opacity:.8;width:32px;height:32px;font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="xhs-page">
+  <article class="xhs-card">
+
+    <!-- 左侧图片轮播 -->
+    <div class="xhs-gallery">
+      <div class="xhs-counter"><span id="xhsCurIdx">1</span>/8</div>
+      <div class="xhs-slides" id="xhsSlides">
+    <div class="xhs-slide xhs-slide-active" data-idx="0">
+      <img src="aigc-xhs-demo-assets/pic0.png" alt="20万落地纯电SUV亲测5款不踩雷·信息图式小红书封面海报，含5款车型名称胶囊清单" loading="lazy"/>
+      <div class="xhs-img-caption">AI 生成示意图，仅供参考</div>
+    </div>
+    <div class="xhs-slide" data-idx="1">
+      <img src="https://car3.autoimg.cn/cardfs/product/g31/M0B/8A/8F/autohomecar__ChxoHmfJm--ANelhABVigu_gVbg400.jpg" alt="智己LS6侧45度白色实拍+后排二胎座椅空间细节双拼图" loading="lazy"/>
+      <div class="xhs-img-caption">图片来源：[汽车之家·智己LS6官方图库](https://www.autohome.com.cn/cars/imglist-x-x-7305-71889-1-x-x-x-x-1.html</div>
+    </div>
+    <div class="xhs-slide" data-idx="2">
+      <img src="aigc-xhs-demo-assets/pic1.png" alt="乐道L60蔚来换电站换电中场景，机械臂正在换电池包，车身蓝色" loading="lazy"/>
+      <div class="xhs-img-caption">AI 生成示意图，仅供参考</div>
+    </div>
+    <div class="xhs-slide" data-idx="3">
+      <img src="https://www2.autoimg.cn/chejiahaodfs/g34/M0A/9B/64/750x0_autohomecar__ChxpV2ilmzmAYaVMAAr6KQqsBN4950.png" alt="智界R7鸿蒙座舱内饰，16.1英寸3K中控屏+双零重力副驾椅展开状态" loading="lazy"/>
+      <div class="xhs-img-caption">图片来源：[汽车之家·26款智界R7实车到店](https://chejiahao.autohome.com.cn/info/21655960</div>
+    </div>
+    <div class="xhs-slide" data-idx="4">
+      <img src="https://www2.autoimg.cn/chejiahaodfs/g31/M05/10/DC/750x0_autohomecar__ChxoHWfGroaAJETwABNT5T_mycM830.png" alt="2025款小鹏G6黑色实车前脸3/4角度+侧45度展厅实拍，贯穿式日行灯、G6标识牌、20英寸熏黑运动轮毂、轿跑SUV溜背造型" loading="lazy"/>
+      <div class="xhs-img-caption">图片来源：[汽车之家车家号·2025款小鹏G6实车到店](https://chejiahao.autohome.com.cn/info/19507817</div>
+    </div>
+    <div class="xhs-slide" data-idx="5">
+      <img src="https://img1.gamersky.com/upimg/pic/2025/07/24/small_202507241101078911.jpg" alt="特斯拉Model Y在V4超充站充电场景实拍，TESLA红色品牌标识的V4超充桩+多台Model Y充电中" loading="lazy"/>
+      <div class="xhs-img-caption">图片来源：[游民星空·博主实测特斯拉V4超充桩](https://www.gamersky.com/tech/202507/1966602.shtml</div>
+    </div>
+    <div class="xhs-slide" data-idx="6">
+      <img src="aigc-xhs-demo-assets/pic2.png" alt="5款车核心参数对比表，5维度含价格/续航/智驾/空间/三电平台，SVG风格清单图" loading="lazy"/>
+      <div class="xhs-img-caption">AI 生成示意图，仅供参考</div>
+    </div>
+    <div class="xhs-slide" data-idx="7">
+      <img src="aigc-xhs-demo-assets/pic3.png" alt="分人群对照清单图，5个emoji人设头像对应5款车型小图" loading="lazy"/>
+      <div class="xhs-img-caption">AI 生成示意图，仅供参考</div>
+    </div>
+      </div>
+      <button class="xhs-nav xhs-nav-prev" type="button" aria-label="上一张">‹</button>
+      <button class="xhs-nav xhs-nav-next" type="button" aria-label="下一张">›</button>
+      <div class="xhs-dots" id="xhsDots">
+        <span class="xhs-dot active" data-idx="0"></span>
+        <span class="xhs-dot" data-idx="1"></span>
+        <span class="xhs-dot" data-idx="2"></span>
+        <span class="xhs-dot" data-idx="3"></span>
+        <span class="xhs-dot" data-idx="4"></span>
+        <span class="xhs-dot" data-idx="5"></span>
+        <span class="xhs-dot" data-idx="6"></span>
+        <span class="xhs-dot" data-idx="7"></span>
+      </div>
+    </div>
+
+    <!-- 右侧内容栏 -->
+    <div class="xhs-content">
+
+      <!-- 作者栏 -->
+      <div class="xhs-author">
+        <div class="xhs-author-avatar">🚙</div>
+        <div class="xhs-author-info">
+          <div class="xhs-author-name">汽车图文创作团队</div>
+          <div class="xhs-author-tag">汽车博主 · 已认证</div>
+        </div>
+        <button class="xhs-follow-btn">关注</button>
+      </div>
+
+      <!-- 滚动正文 -->
+      <div class="xhs-body-scroll">
+        <div class="xhs-title">20万落地纯电SUV｜亲测5款不踩雷，对号入座别选错</div>
+        <div class="xhs-quote">5 款车 × 5 个人设 × 1 张对照表，看完直接知道自己该买哪台。</div>
+
+        <div class="xhs-body">
+<p>姐妹们，2025 年 20-30 万纯电 SUV 销量榜刚出炉 📊：Model Y 一年卖了 <strong>42.5 万辆</strong>，但智界 R7、极氪 7X、乐道 L60、阿维塔 07、智己 LS6 这国产 5 强加起来也干到了 <strong>30 万辆</strong>，正在围攻特斯拉（<a href="https://baa.m.yiche.com/212/thread-53442016.html" target="_blank" rel="noopener">易车 2025 全年销量榜</a>）。</p>
+<p>闺蜜上周纠结了整整半个月，最后还是没下单 —— 不是车不好，是 <strong>20 万落地的纯电 SUV 太卷了</strong>，每款都说自己是"性价比之王" 🤯。</p>
+<p>更夸张的是：3 年前要加钱选装的 <strong>800V 高压、激光雷达、城区 NOA</strong>，现在 20 万级直接全标配 🔥。同样落地 20 万，可以买换电的乐道、可以买全标配高阶智驾的小鹏、可以买 90% 得房率的智己 —— 关键看你最在意哪一项。</p>
+<p>下面这 5 款小编挨个扒了一遍，文末有"对号入座对照表"，不踩雷 ✅</p>
+<h2 class="xhs-h2">1️⃣ 智己 LS6｜👨‍👩‍👧‍👦 二胎家庭的空间魔术师</h2>
+<p>闺蜜 A 是二胎妈妈，看完直接交了 5000 定金 🤣。原因只有一个字：<strong>大</strong>。</p>
+<ul class="xhs-list">
+<li>📏 <strong>车身 4937×1988×1671mm，轴距 2960mm</strong>，号称"得房率 90%"；<strong>后备箱 606-1822L（含魔术储物仓）</strong>，露营装备、双婴儿车随便塞</li>
+<li>🛞 <strong>灵蜥数字底盘 + 智慧四轮转向</strong>，最小转弯半径 4.79m —— 比很多紧凑型 SUV 还灵活，地下车库掉头一把过</li>
+<li>⚡ <strong>800V 准 900V 超快充平台</strong>，主销 Pro/Max 搭载 <strong>76kWh 磷酸铁锂电池</strong>（CLTC 650km），顶配 Ultra 才是 <strong>103kWh 三元锂</strong>（CLTC 750km），15 分钟补能 310km，Ultra 零百 3.48 秒</li>
+</ul>
+<p>💰 纯电指导价 <strong>21.29-28.49 万</strong>（纯电 Pro 21.29 万起 / 主推 <strong>Max 22.49 万纯电 650km 后驱</strong>），落地约 24 万出头。别被顶配 28.49 万劝退，主销那台才是真香（<a href="https://www.immotors.com/website/vehicle_config/ls6m2" target="_blank" rel="noopener">智己 LS6 官方配置表</a>）。</p>
+<p><strong>适合</strong>：二胎家庭、露营党、对后排空间有执念的爸妈党。</p>
+<h2 class="xhs-h2">2️⃣ 乐道 L60｜🔋 怕续航焦虑党的换电省心代表</h2>
+<p>住小区没固定车位的家人们看这里 ⬇️ 乐道 L60 是这次 5 款里<strong>唯一不用纠结充电桩</strong>的选项。</p>
+<ul class="xhs-list">
+<li>🔄 <strong>蔚来换电网络直接复用</strong>：5 分钟换一块满电包，没有"高速服务区排队 1 小时"的窒息</li>
+<li>⚡ <strong>行业首个量产全域 900V 高压架构</strong>，超充 5 分钟补能 250km+</li>
+<li>🧠 Max+/Ultra+ 标配 <strong>蔚来自研神玑 NX9031 芯片 + 高精度激光雷达</strong>，搭载 NWM 世界模型，城区智驾稳得一批</li>
+<li>🛋️ 高通 8295P 芯片 + 天枢 SkyOS 全域操作系统 + 女王副驾标配，宠老婆神器</li>
+</ul>
+<p>💰 <strong>整车 19.28 万起（Pro）/ BaaS 电池租用 13.58 万起</strong>，Max+ 整车 20.28 万起；全系标配 85kWh 单包电池，CLTC 综合续航 740km，对应 Pro/Max+/Ultra+ 三档；同尺寸下落地价比 Model Y 便宜十几万（<a href="https://www.onvo.cn/news/20260611001" target="_blank" rel="noopener">乐道官网新闻：新乐道 L60 上市 19.28 万起</a>、<a href="https://new.qq.com/rain/a/20260615A08WQ600" target="_blank" rel="noopener">腾讯新闻：乐道 vs Model Y 省十几万</a>）。</p>
+<p><strong>适合</strong>：怕续航焦虑、无固定车位、家有老人小孩需要省心补能的城市家庭。</p>
+<h2 class="xhs-h2">3️⃣ 智界 R7｜📱 华为生态党的全栈科技标杆</h2>
+<p>⚠️ 先说大实话：智界 R7 纯电入门 <strong>24.98 万</strong>，落地约 26 万出头，<strong>已经踩在 20 万级的上沿</strong> —— 小编把它放进来，是因为它代表了这个价位的科技天花板，华为粉值得知道这台车贵在哪。</p>
+<ul class="xhs-list">
+<li>🛰️ <strong>入门即标配 192 线激光雷达 + 华为 ADS 4</strong>，无图 NCA 全国都能开，智驾代差肉眼可见</li>
+<li>📺 <strong>鸿蒙座舱 + 16.1 英寸 3K 中控屏 + HUAWEI SOUND 21 扬声器 + 双零重力副驾</strong>，HiCar 全家桶无缝衔接手机/手表/平板</li>
+<li>⚡ <strong>华为 DriveONE 800V 碳化硅平台 + "巨鲸"电池</strong>，CLTC 667km(Max)/802km(Max+)/736km(四驱 Ultra)，补能速度行业第一梯队</li>
+<li>📐 4982×1981×1650mm，轴距 2950mm，CDC 电磁悬架</li>
+</ul>
+<p>💰 指导价 <strong>纯电 24.98-31.98 万</strong>，落地区间 26-33 万（<a href="https://www.autohome.com.cn/config/series/7730.html" target="_blank" rel="noopener">汽车之家 智界 R7 配置</a>、<a href="https://dealer.yiche.com/100216812/price_detail/168925.html" target="_blank" rel="noopener">鸿蒙智行经销商报价单</a>）。</p>
+<p><strong>适合</strong>：华为生态深度用户、对智驾代差敏感的工程师/程序员家庭、能接受 25 万+落地的科技尝鲜党。</p>
+<h2 class="xhs-h2">4️⃣ 小鹏 G6｜💰 20万党的智驾平权之王</h2>
+<p>预算严格卡在 20 万还想要全标配高阶智驾？小鹏 G6 是目前最香的答案，没有之一 💸。</p>
+<ul class="xhs-list">
+<li>💸 <strong>17.68-19.88 万，全系压在 20 万以内</strong>，顶配 19.88 万落地约 21-22 万 —— 这次 5 款里唯一裸车不破 20 万</li>
+<li>🧠 <strong>全系标配 2 颗 Orin X + 纯视觉 AI 智驾</strong>（替代上代激光雷达方案），XNGP 城市 NOA 已覆盖更广无图城区，何小鹏宣布<strong>智驾功能全部免费</strong>，"智驾平权"四个字不是说说</li>
+<li>⚡ <strong>800V 高压平台</strong>，CLTC 625-725km，68.5kWh 电池，约 20 分钟可充至 80%，高速实测能耗 12.5kWh/100km</li>
+<li>🎨 4758×1920×1650mm，轴距 2890mm，<strong>溜背式轿跑造型</strong>，颜值党闭眼入</li>
+</ul>
+<p>主流配置 18-19 万拿下，落地 20 万出头，钱真的花在刀刃上（<a href="https://news.qq.com/rain/a/20250314A03UOS00" target="_blank" rel="noopener">腾讯新闻：新款小鹏 G6 顶配仅 19.88 万元</a>）。</p>
+<p><strong>适合</strong>：预算严格 20 万以内、年轻单身/两口之家、热爱科技感和颜值党。</p>
+<h2 class="xhs-h2">5️⃣ 特斯拉 Model Y｜🚗 品牌党的行业对照锚点</h2>
+<p>⚠️ 把丑话说在前面：Model Y 出现在这里是<strong>对照锚点，不是主推</strong>。让你直观看到国产车便宜在哪、国产贵的好在哪，再决定要不要为信仰充值 🪙。</p>
+<ul class="xhs-list">
+<li>🏆 <strong>2025 全年销量 425,337 辆</strong>，依旧是 20-30 万纯电 SUV 销冠，OTA 成熟、保值率最高</li>
+<li>⚡ <strong>V4 超充网络</strong>覆盖全国一二线高速服务区，长途自驾真省心；特斯拉自研 4680/2170 电芯</li>
+<li>🎯 <strong>极简哲学</strong>：15.4 英寸中控一块屏搞定所有交互，不喜欢中式大屏的极简党会上头</li>
+<li>📐 轴距 2890mm，前后备箱总容积同级领先</li>
+</ul>
+<p>⚠️ 注意：FSD 入华还在分批推送，国内目前主要是 EAP，智驾<strong>不算同级最强</strong>；CLTC 续航 593km（标准）/719km（长续航）。指导价 <strong>26 万级（标准续航后驱版）</strong>，落地约 27 万。</p>
+<p><strong>适合</strong>：品牌党、超充网络重度依赖者、长途自驾爱好者、不爱中式大屏的极简党。</p>
+<h2 class="xhs-h2">📊 5 款车 5 维度横评｜30 秒看完全部差异</h2>
+<p>不想细看每段？这张表帮你 30 秒看完全部差异 ⬇️ 续航补能、智驾、空间、座舱、性价比一目了然，<strong>乐道换电>智界 800V>G6 800V</strong>，<strong>智驾智界 ADS 4 领跑</strong>，<strong>空间智己 LS6 称王</strong>，<strong>性价比小鹏 G6 封神</strong>（参考<a href="https://www.dongchedi.com/ugc/article/1857929716326727" target="_blank" rel="noopener">懂车帝：智己 LS6/极氪 7X/智界 R7 横评</a>）。</p>
+<h2 class="xhs-h2">🎯 看完还纠结？对号入座抄作业 ⬇️</h2>
+<ul class="xhs-list">
+<li>👨‍👩‍👧‍👦 二胎/家庭舒适党 → <strong>智己 LS6</strong>（空间魔术师，90% 得房率）</li>
+<li>🔋 怕续航焦虑/换电党 → <strong>乐道 L60</strong>（换电+900V+神玑芯片）</li>
+<li>📱 华为生态/科技党 → <strong>智界 R7</strong>（ADS 4 + 鸿蒙，但要接受 25 万+ 落地）</li>
+<li>💰 预算严格 20 万党 → <strong>小鹏 G6</strong>（智驾平权，全系压线）</li>
+<li>🚗 品牌党/超充党 → <strong>特斯拉 Model Y</strong>（销冠对照锚点）</li>
+</ul>
+<p>💬 你预算 20 万，最在意哪一项？空间、换电、智驾、性价比、品牌 —— 评论区扣个关键词，下一篇小编单拎一台深度测 ❤️</p>
+        </div>
+
+        <div class="xhs-tags">
+          <a class="xhs-tag" href="javascript:void(0)">#新能源SUV</a>
+          <a class="xhs-tag" href="javascript:void(0)">#纯电SUV</a>
+          <a class="xhs-tag" href="javascript:void(0)">#20万买什么车</a>
+          <a class="xhs-tag" href="javascript:void(0)">#20万SUV推荐</a>
+          <a class="xhs-tag" href="javascript:void(0)">#智己LS6</a>
+          <a class="xhs-tag" href="javascript:void(0)">#乐道L60</a>
+          <a class="xhs-tag" href="javascript:void(0)">#智界R7</a>
+          <a class="xhs-tag" href="javascript:void(0)">#小鹏G6</a>
+          <a class="xhs-tag" href="javascript:void(0)">#ModelY</a>
+          <a class="xhs-tag" href="javascript:void(0)">#女生买车</a>
+          <a class="xhs-tag" href="javascript:void(0)">#家用SUV</a>
+        </div>
+
+        <div class="xhs-time-loc">06-18 北京</div>
+
+        <!-- 评论 -->
+        <div class="xhs-comments-head">共 5 条评论</div>
+    <div class="xhs-comment">
+      <div class="xhs-comment-row">
+        <div class="xhs-avatar">🚗</div>
+        <div class="xhs-comment-body">
+          <div class="xhs-comment-meta">
+            <span class="xhs-comment-name">用户A</span>
+          </div>
+          <div class="xhs-comment-text">这篇横评太及时了，看完直接锁定 2 款候选车型！</div>
+          <div class="xhs-comment-actions">
+            <span class="xhs-comment-time">1 小时前 上海</span>
+            <span class="xhs-comment-action">♡ 87</span>
+            <span class="xhs-comment-action">💬 12</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="xhs-comment">
+      <div class="xhs-comment-row">
+        <div class="xhs-avatar">🔋</div>
+        <div class="xhs-comment-body">
+          <div class="xhs-comment-meta">
+            <span class="xhs-comment-name">用户B</span>
+          </div>
+          <div class="xhs-comment-text">换电方案到底值不值得？BaaS 长期来看心里有点别扭…</div>
+          <div class="xhs-comment-actions">
+            <span class="xhs-comment-time">3 小时前 北京</span>
+            <span class="xhs-comment-action">♡ 56</span>
+            <span class="xhs-comment-action">💬 8</span>
+          </div>
+        <div class="xhs-comment-reply">
+          <div class="xhs-comment-row">
+            <div class="xhs-avatar xhs-avatar-author">🚙</div>
+            <div class="xhs-comment-body">
+              <div class="xhs-comment-meta">
+                <span class="xhs-comment-name">汽车图文创作团队</span>
+                <span class="xhs-author-badge">作者</span>
+              </div>
+              <div class="xhs-comment-text">BaaS 适合短期持有 3-5 年的，长期持有还是整车划算些</div>
+              <div class="xhs-comment-actions">
+                <span class="xhs-comment-time">刚刚 北京</span>
+                <span class="xhs-comment-action">♡ 赞</span>
+                <span class="xhs-comment-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div class="xhs-comment-expand">展开 7 条回复 ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="xhs-comment">
+      <div class="xhs-comment-row">
+        <div class="xhs-avatar">📱</div>
+        <div class="xhs-comment-body">
+          <div class="xhs-comment-meta">
+            <span class="xhs-comment-name">用户C</span>
+          </div>
+          <div class="xhs-comment-text">智驾代差真的是肉眼可见，但价格贵在这里也合理</div>
+          <div class="xhs-comment-actions">
+            <span class="xhs-comment-time">5 小时前 深圳</span>
+            <span class="xhs-comment-action">♡ 43</span>
+            <span class="xhs-comment-action">💬 5</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="xhs-comment">
+      <div class="xhs-comment-row">
+        <div class="xhs-avatar">💰</div>
+        <div class="xhs-comment-body">
+          <div class="xhs-comment-meta">
+            <span class="xhs-comment-name">用户D</span>
+          </div>
+          <div class="xhs-comment-text">已经下单，纯视觉智驾够日常通勤了，没必要追求顶配</div>
+          <div class="xhs-comment-actions">
+            <span class="xhs-comment-time">昨天 22:34 杭州</span>
+            <span class="xhs-comment-action">♡ 71</span>
+            <span class="xhs-comment-action">💬 9</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="xhs-comment">
+      <div class="xhs-comment-row">
+        <div class="xhs-avatar">🌟</div>
+        <div class="xhs-comment-body">
+          <div class="xhs-comment-meta">
+            <span class="xhs-comment-name">用户E</span>
+          </div>
+          <div class="xhs-comment-text">看完直接收藏了！博主下一篇能写下其他车型横评吗？</div>
+          <div class="xhs-comment-actions">
+            <span class="xhs-comment-time">昨天 18:20 北京</span>
+            <span class="xhs-comment-action">♡ 32</span>
+            <span class="xhs-comment-action">💬 3</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+        <div class="xhs-end">— THE END —</div>
+      </div>
+
+      <!-- 底部互动栏 -->
+      <div class="xhs-bottom-bar">
+        <div class="xhs-input-wrap">
+          <div class="xhs-input-avatar">😊</div>
+          <div class="xhs-input-placeholder">说点什么…</div>
+        </div>
+        <div class="xhs-action-group">
+          <div class="xhs-action"><span class="xhs-action-ico">♡</span><span>2.3w</span></div>
+          <div class="xhs-action"><span class="xhs-action-ico">⭐</span><span>1.8w</span></div>
+          <div class="xhs-action"><span class="xhs-action-ico">💬</span><span>5</span></div>
+          <div class="xhs-action"><span class="xhs-action-ico">↗</span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </article>
+</div>
+
+<script>
+(function(){
+  const slidesEl = document.getElementById('xhsSlides');
+  const slides = Array.from(document.querySelectorAll('.xhs-slide'));
+  const dots = Array.from(document.querySelectorAll('.xhs-dot'));
+  const curIdxEl = document.getElementById('xhsCurIdx');
+  const total = slides.length;
+  let curIdx = 0;
+
+  if (!slidesEl || total === 0) return;
+
+  // ---------- 调试角标：URL 加 ?debug=1 才显示 ----------
+  // 用来确认 JS 是否在 iframe 内执行、scroll 是否触发、detectIdx 计算结果
+  let dbg = null;
+  let scrollCount = 0;
+  let touchCount = 0;
+  let tickCount = 0;
+  try {
+    if (location.search.indexOf('debug=1') !== -1) {
+      dbg = document.createElement('div');
+      dbg.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99999;background:rgba(0,0,0,.75);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:4px;pointer-events:none;white-space:pre';
+      document.body.appendChild(dbg);
+    }
+  } catch(e){}
+  function updateDbg(extra){
+    if (!dbg) return;
+    const sl = slidesEl.scrollLeft|0;
+    const sw = slidesEl.scrollWidth|0;
+    const cw = slidesEl.clientWidth|0;
+    dbg.textContent =
+      'JS alive in iframe ✓\n' +
+      'scrollLeft=' + sl + ' clientW=' + cw + ' scrollW=' + sw + '\n' +
+      'isHorizontal=' + (sw - cw > 1) + '\n' +
+      'scrollEv=' + scrollCount + ' touchEv=' + touchCount + ' tick=' + tickCount + '\n' +
+      'detectIdx=' + detectIdx() + ' curIdx=' + curIdx + (extra ? ('\n' + extra) : '');
+  }
+
+  // ---------- 核心：写指示器（不做 early-return，每次都强制写 DOM） ----------
+  function writeIndicator(idx){
+    idx = ((idx % total) + total) % total;
+    curIdx = idx;
+    if (curIdxEl) curIdxEl.textContent = String(idx + 1);
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].classList.toggle('active', i === idx);
+    }
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].classList.toggle('xhs-slide-active', i === idx);
+    }
+  }
+
+  // ---------- 检测当前是否处于"横向滚动模式" ----------
+  function isHorizontal(){
+    return slidesEl.scrollWidth - slidesEl.clientWidth > 1;
+  }
+
+  // ---------- 几何判定：哪一张离容器水平中心最近 ----------
+  function detectIdx(){
+    if (isHorizontal()) {
+      const rootRect = slidesEl.getBoundingClientRect();
+      const center = rootRect.left + rootRect.width / 2;
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < slides.length; i++) {
+        const r = slides[i].getBoundingClientRect();
+        const c = r.left + r.width / 2;
+        const d = Math.abs(c - center);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      }
+      return bestIdx;
+    }
+    return curIdx;
+  }
+
+  function sync(){
+    writeIndicator(detectIdx());
+    updateDbg();
+  }
+
+  // ---------- 主动跳转 ----------
+  function goTo(idx){
+    idx = ((idx % total) + total) % total;
+    if (isHorizontal()) {
+      slidesEl.scrollTo({ left: slidesEl.clientWidth * idx, behavior: 'smooth' });
+      writeIndicator(idx);
+    } else {
+      writeIndicator(idx);
+    }
+  }
+  function xhsPrev(){ goTo(curIdx - 1); }
+  function xhsNext(){ goTo(curIdx + 1); }
+  window.xhsPrev = xhsPrev;
+  window.xhsNext = xhsNext;
+
+  // ---------- 圆点 ----------
+  dots.forEach(d => d.addEventListener('click', e => {
+    e.stopPropagation();
+    goTo(parseInt(e.currentTarget.dataset.idx, 10));
+  }));
+
+  // ---------- 左右箭头按钮 ----------
+  const prevBtn = document.querySelector('.xhs-nav-prev');
+  const nextBtn = document.querySelector('.xhs-nav-next');
+  if (prevBtn) prevBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); xhsPrev(); });
+  if (nextBtn) nextBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); xhsNext(); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') xhsPrev();
+    if (e.key === 'ArrowRight') xhsNext();
+  });
+
+  // ---------- 监听滑动 ----------
+  let rafId = null;
+  slidesEl.addEventListener('scroll', () => {
+    scrollCount++;
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => { rafId = null; sync(); });
+  }, {passive:true});
+
+  // iframe 内 touch 事件可能被宿主接管，仅作锦上添花
+  slidesEl.addEventListener('touchstart', () => { touchCount++; }, {passive:true});
+  slidesEl.addEventListener('touchmove', sync, {passive:true});
+  slidesEl.addEventListener('touchend', () => {
+    [60, 200, 400, 700].forEach(ms => setTimeout(sync, ms));
+  }, {passive:true});
+  slidesEl.addEventListener('scrollend', sync, {passive:true});
+
+  // ---------- 终极兜底：rAF 自循环（比 setInterval 在 iframe 节流环境下更可靠） ----------
+  // 因为 setInterval 在某些桌面 App / 后台 iframe 里会被严重节流甚至冻结，
+  // 而 rAF 只要 iframe 可见就会以接近 60fps 跑。这里再加 setInterval 双兜底。
+  let lastScrollLeft = -1;
+  function rafTick(){
+    tickCount++;
+    if (isHorizontal()) {
+      const sl = slidesEl.scrollLeft;
+      // 只在 scrollLeft 变化时才重算，省 CPU
+      if (sl !== lastScrollLeft) {
+        lastScrollLeft = sl;
+        const idx = detectIdx();
+        if (idx !== curIdx) writeIndicator(idx);
+        updateDbg();
+      } else if (dbg) {
+        // 即使没变也每 30 帧刷新一次 dbg
+        if (tickCount % 30 === 0) updateDbg();
+      }
+    }
+    requestAnimationFrame(rafTick);
+  }
+  requestAnimationFrame(rafTick);
+
+  // setInterval 双兜底，专门对付 iframe 被 throttle 导致 rAF 停摆
+  setInterval(() => {
+    if (!isHorizontal()) return;
+    const idx = detectIdx();
+    if (idx !== curIdx) writeIndicator(idx);
+    updateDbg();
+  }, 250);
+
+  // ---------- 容器尺寸变化（不要在用户滑动时强行 scrollLeft 复位！） ----------
+  if ('ResizeObserver' in window) {
+    let lastW = slidesEl.clientWidth;
+    const ro = new ResizeObserver(() => {
+      const w = slidesEl.clientWidth;
+      if (w === lastW) return;
+      lastW = w;
+      sync();
+    });
+    ro.observe(slidesEl);
+  }
+
+  // ---------- 初始化 ----------
+  writeIndicator(0);
+  requestAnimationFrame(() => { requestAnimationFrame(sync); });
+})();
+</script>
+
+</body>
+</html>
